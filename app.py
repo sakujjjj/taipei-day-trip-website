@@ -24,10 +24,32 @@ def index():
 
 @app.route("/attraction/<id>")
 def attraction(id):
+	mydb = mysql.connector.connect(
+	host="localhost",
+	user="root",
+	password="03082002",
+	database="website"
+	)
+	mycursor = mydb.cursor()
+	mycursor.execute("select json_object('id', id,'name', name,'category', category,'description', description,'address', address,'transport', transport,'mrt', mrt,'latitude', latitude,'longitude', longitude,'images', images) from travel where id = %s ", (id,))
+	results = mycursor.fetchone()
+	print(results)
+	print(type(results))
+
+	results = ",".join('%s' %id for id in results)
+	print(results)
+	print(type(results))
+
+	eval(results),type(eval(results))
+	print(results)
+	print(type(results))
+	dic={"data":eval(results)}
+	print(type(dic))
+	return dic
 	return render_template("attraction.html")
 
 
-@app.route("/api/attractions", methods=["get"])
+@app.route("/attractions", methods=["get"])
 def attractions():
     mydb = mysql.connector.connect(
     host="localhost",
@@ -41,8 +63,8 @@ def attractions():
     
     mycursor = mydb.cursor()
     startPage = (page-1)*12
-    # print(keyword)
-    # print(page)
+    print(keyword)
+    print(page)
     if keyword != '*':
         try:
             mycursor.execute("select count(*) from travel where name like concat( '%', %s, '%')",(keyword,))
@@ -101,20 +123,9 @@ def attractions():
             # print(type(totalPage))
 
             mycursor.execute("select json_object('id', id,'name', name,'category', category,'description', description,'address', address,'transport', transport,'mrt', mrt,'latitude', latitude,'longitude', longitude,'images', images) from travel limit %s , 12 ", (startPage,))
-            # mycursor.execute("select json_object('id', id,'name', name, 'mrt', mrt) from travel limit %s , 12 ", (startPage,))
             results = mycursor.fetchall()
-            # print(results)
-            # print(type(results))
-
             results = ",".join('%s' %id for id in results)
-            # print(results)
-            # print(type(results))
-
-            # eval(results),type(eval(results))
-            # print(results)
-            # print(type(results))
-
-
+            eval(results),type(eval(results))
             if page<totalPage:
                 dic={"nextPage": page+1, "data":eval(results)}
                 return dic
@@ -133,30 +144,8 @@ def attractions():
 
 
 
-@app.route("/api/attraction/<id>", methods=["get"])
-def attractionId(id):
-	mydb = mysql.connector.connect(
-	host="localhost",
-	user="root",
-	password="03082002",
-	database="website"
-	)
-	mycursor = mydb.cursor()
-	mycursor.execute("select json_object('id', id,'name', name,'category', category,'description', description,'address', address,'transport', transport,'mrt', mrt,'latitude', latitude,'longitude', longitude,'images', images) from travel where id = %s ", (id,))
-	results = mycursor.fetchone()
-	print(results)
-	print(type(results))
 
-	results = ",".join('%s' %id for id in results)
-	print(results)
-	print(type(results))
 
-	eval(results),type(eval(results))
-	print(results)
-	print(type(results))
-	dic={"data":eval(results)}
-	print(type(dic))
-	return dic
 
 @app.route("/booking")
 def booking():
@@ -165,8 +154,12 @@ def booking():
 def thankyou():
 	return render_template("thankyou.html")
 
-app.debug = True
-app.run(port=3000)
+app.add_url_rule('/api/attraction/<id>',
+                 endpoint="attractions/<id>", view_func=attraction)
+app.add_url_rule('/api/attractions', endpoint="attractions",
+                 view_func=attractions)
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=3000)
 
 
 
