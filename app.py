@@ -27,7 +27,7 @@ def attraction(id):
 	mydb = mysql.connector.connect(
 	host="localhost",
 	user="root",
-	password="03082002",
+	password="1234",
 	database="website"
 	)
 	mycursor = mydb.cursor()
@@ -54,7 +54,7 @@ def attractions():
     mydb = mysql.connector.connect(
     host="localhost",
     user="root",
-    password="03082002",
+    password="1234",
     database="website"
     )
     page = request.args.get("page", default = 1, type = int)
